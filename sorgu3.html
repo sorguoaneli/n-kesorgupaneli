@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIKE OSINT ULTIMATE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0c10;
+            font-family: 'Segoe UI', monospace;
+            color: #ffffff;
+            padding: 15px;
+            transition: background 0.3s;
+        }
+
+        body.light-mode {
+            background: #f0f0f0;
+            color: #000000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* TEMA SWITCH */
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00ff00;
+            color: black;
+            padding: 12px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            z-index: 999;
+            font-weight: bold;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        h1 {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 25px #ffffff;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub {
+            text-align: center;
+            color: #00ff00;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .search-panel {
+            background: #111111;
+            border: 2px solid #00ff00;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px #00ff0033;
+        }
+
+        .light-mode .search-panel {
+            background: #ffffff;
+            border-color: #00cc00;
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-tab {
+            background: #1a1a1a;
+            color: #aaaaaa;
+            padding: 12px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 2px solid #333333;
+            font-weight: bold;
+            transition: 0.2s;
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .light-mode .search-tab {
+            background: #e0e0e0;
+            color: #333333;
+            border-color: #cccccc;
+        }
+
+        .search-tab.active {
+            border-color: #00ff00;
+            color: #00ff00;
+            background: #00ff0011;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-group input {
+            flex: 1;
+            min-width: 250px;
+            padding: 18px 25px;
+            background: #0a0a0a;
+            border: 2px solid #333333;
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .light-mode .search-input-group input {
+            background: #f5f5f5;
+            color: #000000;
+            border-color: #cccccc;
+        }
+
+        .search-input-group input:focus {
+            outline: none;
+            border-color: #00ff00;
+        }
+
+        .search-btn {
+            background: #00ff00;
+            color: #000000;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 45px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.02);
+            background: #00dd00;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #111111;
+            border: 2px solid #333333;
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+            animation: slideIn 0.3s ease;
+        }
+
+        .light-mode .result-card {
+            background: #ffffff;
+            border-color: #cccccc;
+        }
+
+        .result-card:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 25px #00ff0055;
+            transform: translateY(-5px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+
+        .card-header h3 {
+            color: #00ff00;
+            font-size: 18px;
+        }
+
+        .data-field {
+            margin: 12px 0;
+        }
+
+        .data-label {
+            color: #888888;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .data-value {
+            color: white;
+            font-size: 16px;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        .light-mode .data-value {
+            color: #000000;
+        }
+
+        .data-value a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 200px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .light-mode .map-container {
+            background: #e0e0e0;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888888;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #00ff00;
+            color: black;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 0 20px #00ff00;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .export-btn {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #00ff00;
+            padding: 20px;
+            border-top: 1px solid #00ff00;
+        }
+
+        .nike-logo {
+            text-align: center;
+            font-size: 80px;
+            font-weight: bold;
+            font-style: italic;
+            line-height: 1;
+            margin-bottom: -20px;
+            color: #00ff00;
+            text-shadow: 0 0 30px #00ff00;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #00ff00;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- TEMA DEĞİŞTİRİCİ -->
+        <div class="theme-switch" onclick="toggleTheme()">🌓 TEMA DEĞİŞTİR</div>
+
+        <div class="nike-logo">NIKE</div>
+        <h1>⚡OSINT ULTIMATE⚡</h1>
+        <div class="sub">JUST DO IT • İSİM • TELEFON • EMAİL • IP • DOMAIN • SOSYAL</div>
+
+        <!-- EXPORT BUTONLARI -->
+        <div class="export-buttons">
+            <button class="export-btn" onclick="exportData('pdf')">📄 PDF İNDİR</button>
+            <button class="export-btn" onclick="exportData('csv')">📊 CSV İNDİR</button>
+            <button class="export-btn" onclick="exportData('json')">📁 JSON İNDİR</button>
+        </div>
+
+        <!-- Arama Paneli -->
+        <div class="search-panel">
+            <div class="search-tabs">
+                <div class="search-tab active" onclick="switchTab('name')">👤 İSİM</div>
+                <div class="search-tab" onclick="switchTab('phone')">📞 TELEFON</div>
+                <div class="search-tab" onclick="switchTab('email')">📧 EMAIL</div>
+                <div class="search-tab" onclick="switchTab('social')">🔍 SOSYAL</div>
+                <div class="search-tab" onclick="switchTab('ip')">🌐 IP</div>
+                <div class="search-tab" onclick="switchTab('domain')">🔗 DOMAIN</div>
+            </div>
+
+            <!-- İSİM ARAMA -->
+            <div id="name-search">
+                <div class="search-input-group">
+                    <input type="text" id="firstName" placeholder="İsim" value="Ahmet">
+                    <input type="text" id="lastName" placeholder="Soyisim" value="Yılmaz">
+                    <button class="search-btn" onclick="searchByName()">SORGULA</button>
+                </div>
+            </div>
+
+            <!-- TELEFON ARAMA -->
+            <div id="phone-search" style="display:none;">
+                <div class="search-input-group">
+                    <input type="text" id="phoneNumber" placeholder="Telefon (90...)" value="905551234567">
+                    <button class="search-btn" onclick="searchByPhone()">SORGULA</button>
+                </div>
+            </div>
+
+            <!-- EMAIL ARAMA -->
+            <div id="email-search" style="display:none;">
+                <div class="search-input-group">
+                    <input type="email" id="emailAddress" placeholder="Email" value="ahmet@example.com">
+                    <button class="search-btn" onclick="searchByEmail()">SORGULA</button>
+                </div>
+            </div>
+
+            <!-- SOSYAL MEDYA ARAMA -->
+            <div id="social-search" style="display:none;">
+                <div class="search-input-group">
+                    <input type="text" id="username" placeholder="Kullanıcı adı" value="ahmet_yilmaz">
+                    <button class="search-btn" onclick="searchBySocial()">SORGULA</button>
+                </div>
+            </div>
+
+            <!-- IP ARAMA -->
+            <div id="ip-search" style="display:none;">
+                <div class="search-input-group">
+                    <input type="text" id="ipAddress" placeholder="IP Adresi" value="8.8.8.8">
+                    <button class="search-btn" onclick="searchByIP()">SORGULA</button>
+                </div>
+            </div>
+
+            <!-- DOMAIN ARAMA -->
+            <div id="domain-search" style="display:none;">
+                <div class="search-input-group">
+                    <input type="text" id="domainName" placeholder="Domain" value="google.com">
+                    <button class="search-btn" onclick="searchByDomain()">SORGULA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SONUÇLAR -->
+        <div id="results">
+            <div class="results-grid">
+                <!-- KİMLİK KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>👤 KİMLİK</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">İSİM SOYİSİM</span>
+                        <div class="data-value" id="fullName">Ahmet Yılmaz</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">YAŞ</span>
+                        <div class="data-value" id="age">38</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">ÜLKE</span>
+                        <div class="data-value" id="country">Türkiye</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">CİNSİYET</span>
+                        <div class="data-value" id="gender">Erkek</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('fullName')">KOPYALA</button>
+                </div>
+
+                <!-- İLETİŞİM KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>📞 İLETİŞİM</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">TELEFON</span>
+                        <div class="data-value" id="phone">+90 555 123 4567</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">EMAİL</span>
+                        <div class="data-value" id="email">ahmet.yilmaz@gmail.com</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">OPERATÖR</span>
+                        <div class="data-value" id="carrier">Turkcell</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('phone')">KOPYALA</button>
+                </div>
+
+                <!-- SOSYAL MEDYA KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>📱 SOSYAL MEDYA</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">INSTAGRAM</span>
+                        <div class="data-value" id="ig"><a href="#" target="_blank">@ahmet_yilmaz</a></div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">FACEBOOK</span>
+                        <div class="data-value" id="fb"><a href="#" target="_blank">ahmet.yilmaz.85</a></div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">TWITTER</span>
+                        <div class="data-value" id="twitter"><a href="#" target="_blank">@ahmet_yilmaz</a></div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">TIKTOK</span>
+                        <div class="data-value" id="tiktok"><a href="#" target="_blank">@ahmet_yilmaz</a></div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">GITHUB</span>
+                        <div class="data-value" id="github"><a href="#" target="_blank">ahmet_yilmaz</a></div>
+                    </div>
+                </div>
+
+                <!-- IP BİLGİ KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>🌐 IP BİLGİLERİ</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">IP ADRESİ</span>
+                        <div class="data-value" id="ipResult">8.8.8.8</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">KONUM</span>
+                        <div class="data-value" id="ipLocation">Mountain View, ABD</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">ISS</span>
+                        <div class="data-value" id="isp">Google LLC</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">ZAMAN DİLİMİ</span>
+                        <div class="data-value" id="timezone">America/Los_Angeles</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('ipResult')">KOPYALA</button>
+                </div>
+
+                <!-- DOMAIN BİLGİ KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>🔗 DOMAIN BİLGİLERİ</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">DOMAIN</span>
+                        <div class="data-value" id="domainResult">google.com</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">WHOIS</span>
+                        <div class="data-value" id="whois">MarkMonitor Inc.</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">SUNUCU</span>
+                        <div class="data-value" id="server">Google Servers</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">IP ADRESİ</span>
+                        <div class="data-value" id="domainIP">142.250.185.46</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('domainResult')">KOPYALA</button>
+                </div>
+
+                <!-- ADRES KARTI + HARİTA -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>🏠 ADRES & HARİTA</h3>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">ŞEHİR</span>
+                        <div class="data-value" id="city">İstanbul</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">İLÇE</span>
+                        <div class="data-value" id="district">Kadıköy</div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">KOORDİNAT</span>
+                        <div class="data-value" id="coord">41.0082° N, 28.9784° E</div>
+                    </div>
+                    <div class="map-container" id="map">
+                        <div class="map-placeholder">
+                            🗺️ Google Maps - Kadıköy/İstanbul
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRAFİK KARTI -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>📊 AKTİVİTE GRAFİĞİ</h3>
+                    </div>
+                    <canvas id="activityChart" style="width:100%; height:200px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ NIKE OSINT ULTIMATE - JUST DO IT ⚡
+        </div>
+    </div>
+
+    <!-- TOAST BİLDİRİM ALANI -->
+    <div id="toast"></div>
+
+    <script>
+        // Tema değiştirici
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            showToast('Tema değiştirildi!');
+        }
+
+        // Toast bildirim
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = '<div class="toast">' + message + '</div>';
+            setTimeout(() => {
+                toast.innerHTML = '';
+            }, 3000);
+        }
+
+        // Tab geçişi
+        function switchTab(tab) {
+            document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('name-search').style.display = 'none';
+            document.getElementById('phone-search').style.display = 'none';
+            document.getElementById('email-search').style.display = 'none';
+            document.getElementById('social-search').style.display = 'none';
+            document.getElementById('ip-search').style.display = 'none';
+            document.getElementById('domain-search').style.display = 'none';
+            
+            if (tab === 'name') document.getElementById('name-search').style.display = 'block';
+            if (tab === 'phone') document.getElementById('phone-search').style.display = 'block';
+            if (tab === 'email') document.getElementById('email-search').style.display = 'block';
+            if (tab === 'social') document.getElementById('social-search').style.display = 'block';
+            if (tab === 'ip') document.getElementById('ip-search').style.display = 'block';
+            if (tab === 'domain') document.getElementById('domain-search').style.display = 'block';
+        }
+
+        // Kopyalama fonksiyonu
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Kopyalandı: ' + text);
+            });
+        }
+
+        // İSİM SORGULAMA
+        function searchByName() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            
+            document.getElementById('fullName').innerText = firstName + ' ' + lastName;
+            
+            // Genderize.io API
+            fetch('https://api.genderize.io?name=' + firstName)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.gender) {
+                        document.getElementById('gender').innerText = data.gender === 'male' ? 'Erkek' : 'Kadın';
+                        document.getElementById('fullName').innerHTML = firstName + ' ' + lastName + ' (' + (data.probability*100).toFixed(0) + '%)';
+                    }
+                });
+            
+            // Nationalize.io API
+            fetch('https://api.nationalize.io?name=' + firstName)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.country && data.country[0]) {
+                        document.getElementById('country').innerText = data.country[0].country_id;
+                    }
+                });
+            
+            // Agify.io API
+            fetch('https://api.agify.io?name=' + firstName)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.age) {
+                        document.getElementById('age').innerText = data.age;
+                    }
+                });
+            
+            showToast('İsim sorgulandı: ' + firstName + ' ' + lastName);
+            saveToHistory('name', firstName + ' ' + lastName);
+        }
+
+        // TELEFON SORGULAMA
+        function searchByPhone() {
+            const phone = document.getElementById('phoneNumber').value;
+            
+            // Veriphone API
+            fetch('https://api.veriphone.io/v2/verify?phone=' + phone + '&key=FC952F6D13B24CBAB5DA0E957C2C0A5F')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.phone_valid) {
+                        document.getElementById('phone').innerText = data.phone;
+                        if (data.carrier) {
+                            document.getElementById('carrier').innerText = data.carrier;
+                        }
+                        if (data.country) {
+                            document.getElementById('country').innerText = data.country;
+                        }
+                        showToast('Telefon doğrulandı: ' + data.phone);
+                    }
+                });
+            
+            saveToHistory('phone', phone);
+        }
+
+        // EMAIL SORGULAMA
+        function searchByEmail() {
+            const email = document.getElementById('emailAddress').value;
+            document.getElementById('email').innerText = email;
+            
+            // AbstractAPI Email Validation
+            fetch('https://emailvalidation.abstractapi.com/v1/?api_key=2a8b1c5d4e6f7g8h9i0j1k2l3m4n5o6p&email=' + email)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.is_valid_format) {
+                        let status = data.is_smtp_valid ? '✅ Geçerli' : '⚠️ Şüpheli';
+                        document.getElementById('email').innerText = email + ' ' + status;
+                    }
+                });
+            
+            showToast('Email sorgulandı: ' + email);
+            saveToHistory('email', email);
+        }
+
+        // SOSYAL MEDYA SORGULAMA
+        function searchBySocial() {
+            const username = document.getElementById('username').value;
+            
+            document.getElementById('ig').innerHTML = '<a href="https://instagram.com/' + username + '" target="_blank">@' + username + '</a>';
+            document.getElementById('twitter').innerHTML = '<a href="https://twitter.com/' + username + '" target="_blank">@' + username + '</a>';
+            document.getElementById('tiktok').innerHTML = '<a href="https://tiktok.com/@' + username + '" target="_blank">@' + username + '</a>';
+            document.getElementById('github').innerHTML = '<a href="https://github.com/' + username + '" target="_blank">' + username + '</a>';
+            document.getElementById('fb').innerHTML = '<a href="https://facebook.com/' + username + '" target="_blank">' + username + '</a>';
+            
+            // GitHub API
+            fetch('https://api.github.com/users/' + username)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.login) {
+                        document.getElementById('github').innerHTML = '<a href="' + data.html_url + '" target="_blank">' + data.login + ' (' + data.public_repos + ' repo)</a>';
+                    }
+                });
+            
+            showToast('Sosyal medya sorgulandı: @' + username);
+            saveToHistory('social', username);
+        }
+
+        // IP SORGULAMA
+        function searchByIP() {
+            const ip = document.getElementById('ipAddress').value;
+            
+            // ipapi.co
+            fetch('https://ipapi.co/' + ip + '/json/')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        document.getElementById('ipResult').innerText = ip;
+                        document.getElementById('ipLocation').innerText = data.city + ', ' + data.country_name;
+                        document.getElementById('isp').innerText = data.org;
+                        document.getElementById('timezone').innerText = data.timezone;
+                        
+                        // Haritayı güncelle
+                        if (data.latitude && data.longitude) {
+                            document.getElementById('map').innerHTML = `
+                                <iframe width="100%" height="200" frameborder="0" 
+                                src="https://www.openstreetmap.org/export/embed.html?bbox=${data.longitude-0.1}%2C${data.latitude-0.1}%2C${data.longitude+0.1}%2C${data.latitude+0.1}&layer=mapnik&marker=${data.latitude}%2C${data.longitude}">
+                                </iframe>`;
+                        }
+                        
+                        showToast('IP sorgulandı: ' + ip);
+                    }
+                });
+            
+            saveToHistory('ip', ip);
+        }
+
+        // DOMAIN SORGULAMA
+        function searchByDomain() {
+            const domain = document.getElementById('domainName').value;
+            document.getElementById('domainResult').innerText = domain;
+            
+            // DNS sorgulama (simülasyon)
+            document.getElementById('server').innerText = domain.includes('google') ? 'Google Servers' : 'Cloudflare';
+            document.getElementById('whois').innerText = 'MarkMonitor Inc.';
+            document.getElementById('domainIP').innerText = '142.250.185.46';
+            
+            showToast('Domain sorgulandı: ' + domain);
+            saveToHistory('domain', domain);
+        }
+
+        // Export veri
+        function exportData(format) {
+            const data = {
+                fullName: document.getElementById('fullName').innerText,
+                phone: document.getElementById('phone').innerText,
+                email: document.getElementById('email').innerText,
+                ip: document.getElementById('ipResult').innerText,
+                domain: document.getElementById('domainResult').innerText,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (format === 'json') {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'nike-osint-data.json';
+                a.click();
+            } else if (format === 'csv') {
+                const csv = Object.keys(data).join(',') + '\n' + Object.values(data).join(',');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'nike-osint-data.csv';
+                a.click();
+            } else {
+                showToast('PDF export yakında!');
+            }
+            
+            showToast('Veri dışa aktarıldı: ' + format);
+        }
+
+        // Geçmiş kaydet (LocalStorage)
+        function saveToHistory(type, query) {
+            let history = JSON.parse(localStorage.getItem('nike_osint_history') || '[]');
+            history.push({ type, query, time: new Date().toLocaleString() });
+            if (history.length > 10) history.shift();
+            localStorage.setItem('nike_osint_history', JSON.stringify(history));
+        }
+
+        // Grafik oluştur
+        function createChart() {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Aktivite',
+                        data: [12, 19, 15, 17, 24, 35, 42],
+                        borderColor: '#00ff00',
+                        backgroundColor: '#00ff0022',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            searchByName();
+            searchByPhone();
+            searchByEmail();
+            searchBySocial();
+            searchByIP();
+            searchByDomain();
+            createChart();
+            showToast('👟 NIKE OSINT hazır!');
+        };
+    </script>
+</body>
+</html>
